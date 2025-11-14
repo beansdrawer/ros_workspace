@@ -1,4 +1,3 @@
-# This code is created and tested by the Windows operating system.
 import sys
 import roslibpy
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout
@@ -9,7 +8,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Communication with ROS")
-        self.latest_pose = {'x': 0.0, 'y': 0.0, 'theta': 0.0}
+        self.latest_pose = {'x': 0.0, 'y': 0.0, 'theta': 0.0, 'time': ''}
         self.init_ui()
         self.init_ros()
         self.init_mysql()
@@ -84,6 +83,7 @@ class MainWindow(QWidget):
         self.latest_pose['x'] = message.get('x', 0.0)
         self.latest_pose['y'] = message.get('y', 0.0)
         self.latest_pose['theta'] = message.get('theta', 0.0)
+        self.latest_pose['time'] = message.get('time')
         print("Received:", self.latest_pose)
 
     def closeEvent(self, event):
@@ -135,11 +135,12 @@ class MainWindow(QWidget):
         x = self.latest_pose['x']
         y = self.latest_pose['y']
         theta = self.latest_pose['theta']
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        time = self.latest_pose['time']
+        # now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         sql = "INSERT INTO turtlepos (x, y, theta, time) VALUES (%s, %s, %s, %s)"
-        self.cursor.execute(sql, (x, y, theta, now))
+        self.cursor.execute(sql, (x, y, theta, time))
         self.db.commit()
-        print("Saved pose:", x, y, theta, now)
+        print("Saved pose:", x, y, theta, time)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
